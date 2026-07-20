@@ -28,7 +28,7 @@ print(producto.get("marca"))         # → None
 print(producto.get("marca", "Sin marca"))  # → Sin marca
 
 
-Python
+#Python
 producto = {"nombre": "Laptop", "precio": 850}
 
 # Agregar una clave nueva
