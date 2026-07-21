@@ -6,24 +6,20 @@ from pyspark.sql.functions import col, trim, regexp_replace, when, to_date, date
 
 spark = SparkSession.builder \
     .appName("WindowDemo") \
+    .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") \
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.hudi.catalog.HoodieCatalog") \
+    .config("spark.sql.extensions", "org.apache.spark.sql.hudi.HoodieSparkSessionExtension") \
+    .config("spark.jars.packages", "org.apache.hudi:hudi-spark3.5-bundle_2.12:0.15.0") \
     .getOrCreate()
 
-# Leer el archivo o directorio Parquet
-df = spark.read.parquet("../assets/8b67f00d-384d-4122-ac17-a316affa7650-0_0-552-3082_20260329114448659.parquet")
+path_hudi = "/Users/RChapuli/Documents/DATOS_DATOS_PRE/python-pyspark/pyspark_faltantes/ejemplo1/datos_hudi"
 
-print(df.schema.json())
+# Lee la carpeta usando el formato 'hudi'
+df_hudi = spark.read \
+    .format("hudi") \
+    .load(path_hudi)
 
-df.createOrReplaceTempView("servventas")
-res = spark.sql("""
-  SELECT *
-  FROM servventas
-    WHERE DIRECCION != null OR FECHAENTREGA1 != 'null'
-    LIMIT 10
-""")
-# res = res.withColumn("Columna_Prueba", F.lit(None).cast("string"))
-
-# Mostrar los primeros registros
-res.show(truncate=False)
-
-res.coalesce(1).write.option("header", "true").csv("../output/direccion_no_null.csv")
+# Muestra los primeros datos cargados y el esquema
+df_hudi.show(5)
+df_hudi.printSchema()
 

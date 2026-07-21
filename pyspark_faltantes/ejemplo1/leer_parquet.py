@@ -17,13 +17,13 @@ df.createOrReplaceTempView("servventas")
 res = spark.sql("""
   SELECT *
   FROM servventas
-    WHERE DIRECCION != null OR FECHAENTREGA1 != 'null'
+    -- WHERE DIRECCION != null OR FECHAENTREGA1 != 'null'
     LIMIT 10
 """)
-# res = res.withColumn("Columna_Prueba", F.lit(None).cast("string"))
+res = res.withColumn("Columna_Prueba", F.lit("null").cast("string"))
 
 # Mostrar los primeros registros
-res.show(truncate=False)
+res.show(5, truncate=False)
 
-res.coalesce(1).write.option("header", "true").csv("../output/direccion_no_null.csv")
+res.coalesce(1).write.option("header", "true").csv("../output/direccion_columnas_null.csv")
 
